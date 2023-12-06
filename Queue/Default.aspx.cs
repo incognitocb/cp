@@ -12,7 +12,7 @@ using Microsoft.WindowsAzure.Storage.Queue;
 
 namespace WebRole1
 {
-    public partial class _default : System.Web.UI.Page
+    public partial class Default : System.Web.UI.Page
     {
         CloudStorageAccount sa;
         CloudQueueClient client;
