@@ -26,7 +26,7 @@ namespace WebRole1
             queue.CreateIfNotExists();
         }
 
-        protected void cmdSubmit_Click(object sender, EventArgs e)
+        protected void cmdsubmit_click(object sender, EventArgs e)
         {
             CloudQueueMessage msg = new CloudQueueMessage(txtmail.Text + ";" + txtsubject.Text + ";" + txtmailbody.Text);
             queue.AddMessage(msg);
