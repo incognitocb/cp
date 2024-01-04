@@ -1,0 +1,253 @@
+d)
+
+Default.cshtml
+--------------
+
+@using WebMatrix.Data
+
+@{ 
+    Layout = "~/Shared/_Layout.cshtml";
+    PageData["PageTitle"] = "BEC BookStore";
+    var sQuery = "select * from Msgs";
+    Database db = Database.Open("BookStore");
+    var searchTerm = " ";
+    var name= Request.Form["ttb"];
+    var msg= Request.Form["atb"];
+    if (IsPost && Request.Form["sbtn"] != null)
+    {
+        searchTerm = "%" + Request.Form["stb"] + "%";
+        sQuery = "Select * from Msgs where Name like @0";
+    }
+    if (IsPost && Request.Form["abbtn"] != null)
+    {
+        Validation.RequireField("ttb", "Enter  Name");
+        Validation.RequireField("atb", "Enter Message");
+        if (Validation.IsValid())
+        {
+            var iquery = "insert into Msgs(Name,Message) values('" + Request.Form["ttb"] + "','" + Request.Form["atb"] + "')";
+            db.Execute(iquery);
+            Response.Redirect("~/default.cshtml");
+        }
+    }
+    var result = db.Query(sQuery, searchTerm);
+    WebGrid grid = new WebGrid(source: result);
+}
+
+<form method="post" action=" ">
+    <fieldset>
+        <legend style="text-align:left">Search</legend>
+        <label for="stb">Enter Name</label>
+        <input type="text" width="30" id="stb" name="stb" value="" />
+        <input type="submit" id="sbtn" name="sbtn" value="Search" />
+    </fieldset>
+    <fieldset>
+        @Html.ValidationSummary()
+        <legend style="text-align:left">Add Message</legend>
+        <label for="ttb">Name:</label>
+        <input type="text" width="30" id="ttb" name="ttb" value="" />
+        <label for="ttb">Message:</label>
+        <input type="text" width="30" id="atb" name="atb" value="" />
+        <input type="submit" id="abbtn" name="abbtn" value="Add Message" />
+    </fieldset>
+</form>
+
+@grid.GetHtml(tableStyle: "grid",
+    alternatingRowStyle: "alt",
+    headerStyle: "head",
+    columns: grid.Columns(
+        grid.Column("Id"),
+        grid.Column("Name"), 
+        grid.Column("Message")
+    )
+)
+
+_Layout.cshtml
+--------------
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@PageData["PageTitle"]</title>
+    <link rel="stylesheet" href="./css/stylesheet.css" />
+</head>
+<body>
+    @RenderPage("~/Shared/_Header.cshtml")
+    <center>
+        @RenderBody()
+    </center>
+    @RenderPage("~/Shared/_Footer.cshtml")
+</body>
+</html>
+
+
+_Header.cshtml
+--------------
+<center>
+    <img src="/Assets/3.jpeg" width="100%" height="200px" />
+    <h1>Messenger</h1>
+    <hr />
+
+
+_Footer.cshtml
+--------------
+<hr />
+<center>
+    Copyright &copy; 2011 Bapatla Engineering College::Bapatla
+</center>
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+e)
+
+Default.cshtml
+--------------
+@using WebMatrix.Data
+
+@{ 
+    Layout = "~/Shared/_Layout.cshtml";
+    PageData["PageTitle"] = "BEC BookStore";
+    var sQuery = "select * from Msgs";
+    Database db = Database.Open("BookStore");
+    var searchTerm = " ";
+    var Name= Request.Form["atb"];
+    var message= Request.Form["ptb"];
+    if (IsPost && Request.Form["abbtn"] != null)
+    {
+        Validation.RequireField("ttb", "Enter  Name");
+        Validation.RequireField("atb", "Enter Message");
+        if (Validation.IsValid())
+        {
+            var iquery = "insert into Msgs(Name,Message) values('" + Request.Form["ttb"] + "','" + Request.Form["atb"] + "')";
+            db.Execute(iquery);
+            Response.Redirect("~/default.cshtml");
+        }
+    }
+    var result = db.Query(sQuery, searchTerm);
+    WebGrid grid = new WebGrid(source: result);
+}
+
+<form method="post" action=" ">
+    <fieldset>
+        <legend style="text-align:left">Search</legend>
+        <label for="stb">Enter Name</label>
+        <input type="text" width="30" id="stb" name="stb" value="" />
+        <input type="submit" id="sbtn" name="sbtn" value="Search" />
+    </fieldset>
+    <fieldset>
+        @Html.ValidationSummary()
+        <legend style="text-align:left">Add Message</legend>
+        <label for="ttb">Name:</label>
+        <input type="text" width="30" id="ttb" name="ttb" value="" />
+        <label for="ttb">Message:</label>
+        <input type="text" width="30" id="atb" name="atb" value="" />
+        <input type="submit" id="abbtn" name="abbtn" value="Add Messa" />
+    </fieldset>
+</form>
+
+@grid.GetHtml(tableStyle: "grid",
+    alternatingRowStyle: "alt",
+    headerStyle: "head",
+    columns: grid.Columns(
+        grid.Column("Id"),
+        grid.Column("Name"), 
+        grid.Column("Message"),
+        grid.Column(format:@<a href="~/EditorDelete?id=@item.Id">Edit/Delete</a>)
+    )
+)
+
+
+EditorDelete.cshtml
+-------------------
+
+@using WebMatrix.Data
+@{
+    Layout = "~/Shared/_Layout.cshtml";
+    PageData["PageTitle"] = "Edit or Delete Book";
+    Database db = Database.Open("Bookstore");
+    var query = "select * from Msgs where Id=" + Int32.Parse(Request.QueryString["id"]);
+    var row = db.QuerySingle(query);
+    if (IsPost && Request.Form["eb"] != null)
+    {
+        var uquery = "update Msgs set Name=@0,Message=@1 where id=@2";
+        db.Execute(uquery, Request.Form["ttb"], Request.Form["atb"],Int32.Parse(Request.QueryString["id"]));
+        Response.Redirect("~/Default");
+    }
+    if (IsPost && Request.Form["db"] != null)
+    {
+        var dquery = "delete from Msgs where id=@0";
+        db.Execute(dquery, Int32.Parse(Request.QueryString["id"]));
+        Response.Redirect("~/Default");
+    }
+}
+<form method="post" action="">
+    <table width="80%" border="1">
+        <tr>
+            <td width="80%" style="text-align:right">
+                ID:
+            </td>
+            <td>
+                <input type="text" name="idtb" id="idtb" width="150" value="@row.Id" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:right">
+                Name:
+            </td>
+            <td>
+                <input type="text" name="ttb" id="ttb" width="150" value="@row.Name" />
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:right">
+                Message:
+            </td>
+            <td>
+                <input type="text" name="atb" id="atb" width="150" value="@row.Message" />
+            </td>
+        </tr>
+  
+        <tr>
+            <td style="text-align:right">
+                <input type="submit" value="Edit" name="eb" />
+            </td>
+            <td>
+                <input type="submit" value="Delete" name="db" />
+            </td>
+        </tr>
+    </table>
+</form>
+_Layout.cshtml
+--------------
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@PageData["PageTitle"]</title>
+    <link rel="stylesheet" href="./css/stylesheet.css" />
+</head>
+<body>
+    @RenderPage("~/Shared/_Header.cshtml")
+    <center>
+        @RenderBody()
+    </center>
+    @RenderPage("~/Shared/_Footer.cshtml")
+</body>
+</html>
+
+
+_Header.cshtml
+--------------
+<center>
+    <img src="/Assets/3.jpeg" width="100%" height="200px" />
+    <h1>Messenger</h1>
+    <hr />
+
+
+_Footer.cshtml
+--------------
+<hr />
+<center>
+    Copyright &copy; 2011 Bapatla Engineering College::Bapatla
+</center>
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
